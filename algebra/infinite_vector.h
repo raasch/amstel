@@ -12,22 +12,20 @@
 #ifndef _AMSTEL_INFINITE_VECTOR_H
 #define _AMSTEL_INFINITE_VECTOR_H
 
-#include <set>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <iterator>
 
 namespace AMSTeL
 {
   /*!
-    A model class InfiniteVector<C,I> for inherently sparse,
-    arbitrarily indexed vectors
+    A model class InfiniteVector<C,I> for sparse, infinite-dimensional vectors
       x = (x_i)_{i\in I}
     with entries from a (scalar) class C.
-    InfiniteVector<C,I> may act as a realization of coefficient_type in the WaveletTL.
-    
+   
     Although internally, we will model InfiniteVector as a map<I,C>,
-    the access to the vector entries takes place by a nested iterator
+    access to the vector entries is handled by a nested iterator
     class (compare the deal.II matrix classes) which is STL-compatible.
   */
   template <class C, class I = int>
@@ -357,13 +355,6 @@ namespace AMSTeL
     */
     void COARSE(const double eps, InfiniteVector<C,I>& v) const;
     
-//     /*!
-//       Computes v such that \|*this-v\|_{\ell_2}\le\epsilon;
-//       In contrast to the usual coarse routine, here the 
-//       This routine is a suggestion from Rob Stevenson.
-//     */
-//     void COARSE(const double eps, InfiniteVector<C,I>& v) const;
-
     /*!
       weighted root mean square norm
         ||x||_{v,w} = (1/n * sum_i |x_i|^2 / (atol+max(|v_i|,|w_i|)*rtol)^2)^{1/2}

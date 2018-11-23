@@ -1,10 +1,7 @@
 // implementation of InfiniteVector inline functions
 
-#include <cmath>
 #include <algorithm>
 #include <iostream>
-#include <vector>
-#include <utility>
 
 #include "infinite_vector.h"
 
@@ -30,7 +27,15 @@ namespace AMSTeL
   bool
   InfiniteVector<C,I>::operator == (const InfiniteVector<C,I>& v) const
   {
-    return std::equal(begin(), end(), v.begin());
+//      return std::equal(begin(), end(), v.begin()); // does not compile with Clang under macOS 10.13
+      const_iterator it(begin()), itend(end()), vit(v.begin()), vend(v.end());
+      do {
+          if (it==itend)
+              return vit==vend;
+          if (vit==vend)
+              return false;
+      } while (*it++ == *vit++);
+      return false;
   }
 
   template <class C, class I>

@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <cmath>
-#include <set>
 #include <iostream>
 #include <algebra/infinite_vector.h>
 
@@ -26,7 +25,7 @@ int main()
   cout << "- copy constructor t(s):" << endl;
   InfiniteVector<float,long int> t(s);
   cout << t;
-
+    
   cout << "- are the two vectors equal?" << endl;
   if (t == s)
     cout << "  ... yes!" << endl;
@@ -35,6 +34,14 @@ int main()
 
   cout << "- are the two vectors inequal?" << endl;
   if (t != s)
+    cout << "  ... yes!" << endl;
+  else
+    cout << "  ... no!" << endl;
+
+  t[3] = 43;
+  cout << "- after modifying t into..." << endl;
+  cout << t << "..., are the two vectors equal?" << endl;
+  if (t == s)
     cout << "  ... yes!" << endl;
   else
     cout << "  ... no!" << endl;
