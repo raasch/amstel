@@ -48,11 +48,11 @@ public:
   : protected std::map<I,C>::const_iterator
   {
   public:
+    typedef typename std::map<I,C>::const_iterator::iterator_category iterator_category;
     typedef typename std::map<I,C>::const_iterator::difference_type difference_type;
     typedef typename std::map<I,C>::const_iterator::value_type value_type;
     typedef typename std::map<I,C>::const_iterator::pointer pointer;
     typedef typename std::map<I,C>::const_iterator::reference reference;
-    typedef typename std::map<I,C>::const_iterator::iterator_category iterator_category;
 
     const_iterator(const typename std::map<I,C>::const_iterator& it)
     : std::map<I,C>::const_iterator(it)
@@ -74,6 +74,13 @@ public:
     {
       std::map<I,C>::const_iterator::operator ++ ();
       return *this;
+    }
+    
+    const_iterator operator ++ (int step)
+    {
+      const_iterator r(*this);
+      std::map<I,C>::const_iterator::operator ++ (step);
+      return r;
     }
     
     I index() const
@@ -109,8 +116,19 @@ public:
   
   bool operator == (const InfiniteVector<C,I>& v) const
   {
-//    return std::equal(begin(), end(), v.begin());
+#if 0
+    return std::equal(begin(), end(), v.begin()); // does not compile a.t.m.
+#else
+    const_iterator it(begin()), vit(v.begin());
+    do
+    {
+      if (it==end())
+        return (vit==v.end());
+      if (vit==v.end())
+        return false;
+    } while (*it++ == *vit++);
     return false;
+#endif
   }
 };
 
@@ -119,7 +137,7 @@ std::ostream& operator << (std::ostream& os, const InfiniteVector<C,I>& v)
 {
   if (v.begin() == v.end())
   {
-    os << "0";
+    os << "0" << std::endl;
   }
   else
   {
@@ -133,19 +151,42 @@ std::ostream& operator << (std::ostream& os, const InfiniteVector<C,I>& v)
   return os;
 }
 
+template <class C, class I=int>
+class AnotherInfiniteVector
+: public std::map<I,C>
+{
+public:
+  bool operator == (const AnotherInfiniteVector<C,I>& v) const
+  {
+    return std::equal(std::map<I,C>::begin(),std::map<I,C>::end(),v.begin());
+  }
+};
+
 int main()
 {
   InfiniteVector<double,int> v;
   
+  // test default constructor and operator <<
   cout << "- a zero vector v:" << endl
-    << v << endl;
+    << v;
   
+  // test constructor from std::map
   std::map<int,double> wmap;
   wmap[42]=23.0;
   InfiniteVector<double,int> w(wmap);
   cout << "- a vector w created via std::map:" << endl
-    << w << endl;
+    << w;
 
+  // test operator == on AnotherInfiniteVector
+  AnotherInfiniteVector<double,int> a,b;
+  a[1]=2.5;
+  cout << "- are the vectors a and b equal?" << endl;
+  if (a==b)
+    cout << "  ... yes!" << endl;
+  else
+    cout << "  ... no!" << endl;
+
+  // test operator ==
   cout << "- are the vectors v and w equal?" << endl;
   if (v==w)
     cout << "  ... yes!" << endl;
