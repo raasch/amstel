@@ -19,9 +19,10 @@
     nonzero entries. We are aware of the fact that read access via
     std::map::operator [] alone may insert new, unwanted entries into the
     infinite vector. Therefore, since we want to use the notation [] (and not
-    methods like std::map::at() which are available since C++11), we will use
-    std::map as a protected base class and expose read and write access to it
-    via custom access functions like get_coefficient() and set_coefficient().
+    methods like std::map::at() which have been available only since C++11),
+    we will use std::map as a protected base class and expose read and write
+    access to it via custom access functions like get_coefficient()
+    and set_coefficient().
  2) We want the class InfiniteVector to be an STL-compliant associative
     container class, meaning that all algorithms that can be applied to
     std::map itself should also work for InfiniteVector.
@@ -45,10 +46,28 @@ public:
   class const_iterator
   : protected std::map<I,C>::const_iterator
   {
+  public:
+    const_iterator(const typename std::map<I,C>::const_iterator& it)
+    : std::map<I,C>::const_iterator(it)
+    {
+    }
+
+    bool operator == (const const_iterator& it) const
+    {
+      return (static_cast<typename std::map<I,C>::const_iterator>(*this)
+              == static_cast<typename std::map<I,C>::const_iterator>(it));
+    }
   };
   
-  const_iterator begin() const;
-  const_iterator end() const;
+  const_iterator begin() const
+  {
+    return const_iterator(std::map<I,C>::begin());
+  }
+  
+  const_iterator end() const
+  {
+    return const_iterator(std::map<I,C>::end());
+  };
 };
 
 template<class C, class I>
