@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <algorithm>
 
 /*
  As one of the core ingredients of the AMSTeL library, we will use a C++
@@ -42,11 +43,17 @@ template <class C, class I=int>
 class InfiniteVector
   : protected std::map<I,C>
 {
-public:
+public:  
   class const_iterator
   : protected std::map<I,C>::const_iterator
   {
   public:
+    typedef typename std::map<I,C>::const_iterator::difference_type difference_type;
+    typedef typename std::map<I,C>::const_iterator::value_type value_type;
+    typedef typename std::map<I,C>::const_iterator::pointer pointer;
+    typedef typename std::map<I,C>::const_iterator::reference reference;
+    typedef typename std::map<I,C>::const_iterator::iterator_category iterator_category;
+
     const_iterator(const typename std::map<I,C>::const_iterator& it)
     : std::map<I,C>::const_iterator(it)
     {
@@ -57,7 +64,38 @@ public:
       return (static_cast<typename std::map<I,C>::const_iterator>(*this)
               == static_cast<typename std::map<I,C>::const_iterator>(it));
     }
+    
+    bool operator != (const const_iterator& it) const
+    {
+      return !(*this == it);
+    }
+
+    const_iterator operator ++ ()
+    {
+      std::map<I,C>::const_iterator::operator ++ ();
+      return *this;
+    }
+    
+    I index() const
+    {
+      return (std::map<I,C>::const_iterator::operator *()).first;
+    }
+    
+    const C& operator * () const
+    {
+      return (std::map<I,C>::const_iterator::operator *()).second;
+    }
   };
+  
+  InfiniteVector()
+  : std::map<I,C> ()
+  {
+  }
+  
+  InfiniteVector(const std::map<I,C>& source)
+  : std::map<I,C> (source)
+  {
+  }
   
   const_iterator begin() const
   {
@@ -68,23 +106,29 @@ public:
   {
     return const_iterator(std::map<I,C>::end());
   };
+  
+  bool operator == (const InfiniteVector<C,I>& v) const
+  {
+//    return std::equal(begin(), end(), v.begin());
+    return false;
+  }
 };
 
 template<class C, class I>
 std::ostream& operator << (std::ostream& os, const InfiniteVector<C,I>& v)
 {
-  if (v.begin() ==  v.end())
+  if (v.begin() == v.end())
   {
     os << "0";
   }
-//  else
-//  {
-//    for (typename InfiniteVector<C,I>::const_iterator it(v.begin());
-//         it != v.end(); ++it)
-//    {
-//      os << it.index() << ": " << *it << std::endl;
-//    }
-//  }
+  else
+  {
+    for (typename InfiniteVector<C,I>::const_iterator it(v.begin());
+         it != v.end(); ++it)
+    {
+      os << it.index() << ": " << *it << std::endl;
+    }
+  }
   
   return os;
 }
@@ -93,7 +137,20 @@ int main()
 {
   InfiniteVector<double,int> v;
   
-  cout << "an empty infinite vector:" << endl << v << endl;
+  cout << "- a zero vector v:" << endl
+    << v << endl;
+  
+  std::map<int,double> wmap;
+  wmap[42]=23.0;
+  InfiniteVector<double,int> w(wmap);
+  cout << "- a vector w created via std::map:" << endl
+    << w << endl;
+
+  cout << "- are the vectors v and w equal?" << endl;
+  if (v==w)
+    cout << "  ... yes!" << endl;
+  else
+    cout << "  ... no!" << endl;
   
   return 0;
 }
