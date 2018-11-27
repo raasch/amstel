@@ -13,15 +13,18 @@
  such objects, which will be called InfiniteVector. In order to use as much
  well-tested code from the standard library as possible, we intend to derive
  the class InfiniteVector from std::map and endow it with some standard linear
- algebra functionality (BLAS level 1 and 2, essentially).
+ algebra functionality (BLAS level 1 and 2, essentially). Using std::map
+ as a protected base class leaves open the option to exchange the internal
+ implementation of InfiniteVector, e.g., by a hashed map.
  
  Main design goals and problems:
  1) Read and write access should be of O(N) complexity, N being the number of
-    nonzero entries. We are aware of the fact that read access via
+    nonzero entries. This is ensured by the standard implementation of
+    std::map as a red/black tree. We are aware of the fact that read access via
     std::map::operator [] alone may insert new, unwanted entries into the
     infinite vector. Therefore, since we want to use the notation [] (and not
     methods like std::map::at() which have been available only since C++11),
-    we will use std::map as a protected base class and expose read and write
+    we will expose read and write access to the protected base class std:: map
     access to it via custom access functions like get_coefficient()
     and set_coefficient().
  2) We want the class InfiniteVector to be an STL-compliant associative
@@ -83,7 +86,7 @@ public:
       return r;
     }
     
-    I index() const
+    const I& index() const
     {
       return (std::map<I,C>::const_iterator::operator *()).first;
     }
@@ -91,6 +94,11 @@ public:
     const C& operator * () const
     {
       return (std::map<I,C>::const_iterator::operator *()).second;
+    }
+
+    const C* operator -> () const
+    {
+      return &((std::map<I,C>::const_iterator::operator ->()).second);
     }
   };
   
@@ -114,10 +122,15 @@ public:
     return const_iterator(std::map<I,C>::end());
   };
   
+  size_t size() const
+  {
+    return std::map<I,C>::size();
+  };
+  
   bool operator == (const InfiniteVector<C,I>& v) const
   {
 #if 0
-    return std::equal(begin(), end(), v.begin()); // does not compile a.t.m.
+    return (size()==v.size()) && std::equal(begin(), end(), v.begin()); // does not compile a.t.m.
 #else
     const_iterator it(begin()), vit(v.begin());
     do
@@ -156,9 +169,24 @@ class AnotherInfiniteVector
 : public std::map<I,C>
 {
 public:
+  // Note that the class std::map already has an operator ==, which we
+  // override here to check whether std::equal works
   bool operator == (const AnotherInfiniteVector<C,I>& v) const
   {
-    return std::equal(std::map<I,C>::begin(),std::map<I,C>::end(),v.begin());
+    return (this->size() == v.size()) && std::equal(this->begin(),this->end(),v.begin());
+  }
+};
+
+template <class C, class I=int>
+class YetAnotherInfiniteVector
+: protected std::map<I,C>
+{
+public:
+  // Note that the class std::map already has an operator ==, which we
+  // override here to check whether std::equal works
+  bool operator == (const YetAnotherInfiniteVector<C,I>& v) const
+  {
+    return (this->size() == v.size()) && std::equal(this->begin(),this->end(),v.begin());
   }
 };
 
@@ -173,19 +201,29 @@ int main()
   // test constructor from std::map
   std::map<int,double> wmap;
   wmap[42]=23.0;
+  wmap[123]=23.0;
   InfiniteVector<double,int> w(wmap);
-  cout << "- a vector w created via std::map:" << endl
+  cout << "- a vector w created via std::map :" << endl
     << w;
 
   // test operator == on AnotherInfiniteVector
   AnotherInfiniteVector<double,int> a,b;
   a[1]=2.5;
+  b[2]=2.5;
   cout << "- are the vectors a and b equal?" << endl;
   if (a==b)
     cout << "  ... yes!" << endl;
   else
     cout << "  ... no!" << endl;
 
+  // test operator == on YetAnotherInfiniteVector
+  YetAnotherInfiniteVector<double,int> ay,by;
+  cout << "- are the vectors ay and by equal?" << endl;
+  if (ay==by)
+    cout << "  ... yes!" << endl;
+  else
+    cout << "  ... no!" << endl;
+  
   // test operator ==
   cout << "- are the vectors v and w equal?" << endl;
   if (v==w)
@@ -193,5 +231,11 @@ int main()
   else
     cout << "  ... no!" << endl;
   
+  // test std::count algorithm
+  const double number=23.0;
+  cout << "- w contains "
+  << std::count(w.begin(), w.end(), number)
+  << " times the number " << number << endl;
+
   return 0;
 }
