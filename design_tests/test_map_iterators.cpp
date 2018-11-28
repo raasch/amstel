@@ -47,6 +47,74 @@ class InfiniteVector
   : protected std::map<I,C>
 {
 public:  
+  class iterator
+  : protected std::map<I,C>::iterator
+  {
+  public:
+    typedef typename std::map<I,C>::iterator::iterator_category iterator_category;
+    typedef typename std::map<I,C>::iterator::difference_type difference_type;
+    typedef typename std::map<I,C>::iterator::value_type value_type;
+    typedef typename std::map<I,C>::iterator::pointer pointer;
+    typedef typename std::map<I,C>::iterator::reference reference;
+    
+    iterator(const typename std::map<I,C>::iterator& it)
+    : std::map<I,C>::iterator(it)
+    {
+    }
+    
+    bool operator == (const iterator& it) const
+    {
+      return (static_cast<typename std::map<I,C>::iterator>(*this)
+              == static_cast<typename std::map<I,C>::iterator>(it));
+    }
+    
+    bool operator != (const iterator& it) const
+    {
+      return !(*this == it);
+    }
+    
+    iterator& operator ++ ()
+    {
+      std::map<I,C>::iterator::operator ++ ();
+      return *this;
+    }
+    
+    iterator operator ++ (int step)
+    {
+      const_iterator r(*this);
+      std::map<I,C>::iterator::operator ++ (step);
+      return r;
+    }
+    
+    iterator& operator -- ()
+    {
+      std::map<I,C>::iterator::operator -- ();
+      return *this;
+    }
+    
+    iterator operator -- (int step)
+    {
+      iterator r(*this);
+      std::map<I,C>::iterator::operator -- (step);
+      return r;
+    }
+    
+    I& index() const
+    {
+      return (std::map<I,C>::iterator::operator * ()).first;
+    }
+    
+    C& operator * () const
+    {
+      return (std::map<I,C>::iterator::operator * ()).second;
+    }
+    
+    C* operator -> () const
+    {
+      return &((std::map<I,C>::iterator::operator ->()).second);
+    }
+  };
+  
   class const_iterator
   : protected std::map<I,C>::const_iterator
   {
@@ -56,12 +124,22 @@ public:
     typedef typename std::map<I,C>::const_iterator::value_type value_type;
     typedef typename std::map<I,C>::const_iterator::pointer pointer;
     typedef typename std::map<I,C>::const_iterator::reference reference;
-
+    
+    const_iterator()
+    : std::map<I,C>::const_iterator()
+    {
+    }
+    
     const_iterator(const typename std::map<I,C>::const_iterator& it)
     : std::map<I,C>::const_iterator(it)
     {
     }
-
+    
+    const_iterator(const iterator& it)
+    : std::map<I,C>::const_iterator(it)
+    {
+    }
+    
     bool operator == (const const_iterator& it) const
     {
       return (static_cast<typename std::map<I,C>::const_iterator>(*this)
@@ -72,8 +150,8 @@ public:
     {
       return !(*this == it);
     }
-
-    const_iterator operator ++ ()
+    
+    const_iterator& operator ++ ()
     {
       std::map<I,C>::const_iterator::operator ++ ();
       return *this;
@@ -86,16 +164,29 @@ public:
       return r;
     }
     
+    const_iterator& operator -- ()
+    {
+      std::map<I,C>::const_iterator::operator -- ();
+      return *this;
+    }
+    
+    const_iterator operator -- (int step)
+    {
+      const_iterator r(*this);
+      std::map<I,C>::const_iterator::operator -- (step);
+      return r;
+    }
+    
     const I& index() const
     {
-      return (std::map<I,C>::const_iterator::operator *()).first;
+      return (std::map<I,C>::const_iterator::operator * ()).first;
     }
     
     const C& operator * () const
     {
-      return (std::map<I,C>::const_iterator::operator *()).second;
+      return (std::map<I,C>::const_iterator::operator * ()).second;
     }
-
+    
     const C* operator -> () const
     {
       return &((std::map<I,C>::const_iterator::operator ->()).second);
