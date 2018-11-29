@@ -42,156 +42,18 @@
 using std::cout;
 using std::endl;
 
+// forward declaration of InfiniteVector iterators
+template <class C, class I> class InfiniteVectorConstIterator;
+
 template <class C, class I=int>
 class InfiniteVector
   : protected std::map<I,C>
 {
-public:  
-  class iterator
-  : protected std::map<I,C>::iterator
-  {
-  public:
-    typedef typename std::map<I,C>::iterator::iterator_category iterator_category;
-    typedef typename std::map<I,C>::iterator::difference_type difference_type;
-    typedef typename std::map<I,C>::iterator::value_type value_type;
-    typedef typename std::map<I,C>::iterator::pointer pointer;
-    typedef typename std::map<I,C>::iterator::reference reference;
-    
-    iterator(const typename std::map<I,C>::iterator& it)
-    : std::map<I,C>::iterator(it)
-    {
-    }
-    
-    bool operator == (const iterator& it) const
-    {
-      return (static_cast<typename std::map<I,C>::iterator>(*this)
-              == static_cast<typename std::map<I,C>::iterator>(it));
-    }
-    
-    bool operator != (const iterator& it) const
-    {
-      return !(*this == it);
-    }
-    
-    iterator& operator ++ ()
-    {
-      std::map<I,C>::iterator::operator ++ ();
-      return *this;
-    }
-    
-    iterator operator ++ (int step)
-    {
-      const_iterator r(*this);
-      std::map<I,C>::iterator::operator ++ (step);
-      return r;
-    }
-    
-    iterator& operator -- ()
-    {
-      std::map<I,C>::iterator::operator -- ();
-      return *this;
-    }
-    
-    iterator operator -- (int step)
-    {
-      iterator r(*this);
-      std::map<I,C>::iterator::operator -- (step);
-      return r;
-    }
-    
-    I& index() const
-    {
-      return (std::map<I,C>::iterator::operator * ()).first;
-    }
-    
-    C& operator * () const
-    {
-      return (std::map<I,C>::iterator::operator * ()).second;
-    }
-    
-    C* operator -> () const
-    {
-      return &((std::map<I,C>::iterator::operator ->()).second);
-    }
-  };
+public:
+  friend class InfiniteVectorConstIterator<C,I>;
+  typedef InfiniteVectorConstIterator<C,I> const_iterator;
   
-  class const_iterator
-  : protected std::map<I,C>::const_iterator
-  {
-  public:
-    typedef typename std::map<I,C>::const_iterator::iterator_category iterator_category;
-    typedef typename std::map<I,C>::const_iterator::difference_type difference_type;
-    typedef typename std::map<I,C>::const_iterator::value_type value_type;
-    typedef typename std::map<I,C>::const_iterator::pointer pointer;
-    typedef typename std::map<I,C>::const_iterator::reference reference;
-    
-    const_iterator()
-    : std::map<I,C>::const_iterator()
-    {
-    }
-    
-    const_iterator(const typename std::map<I,C>::const_iterator& it)
-    : std::map<I,C>::const_iterator(it)
-    {
-    }
-    
-    const_iterator(const iterator& it)
-    : std::map<I,C>::const_iterator(it)
-    {
-    }
-    
-    bool operator == (const const_iterator& it) const
-    {
-      return (static_cast<typename std::map<I,C>::const_iterator>(*this)
-              == static_cast<typename std::map<I,C>::const_iterator>(it));
-    }
-    
-    bool operator != (const const_iterator& it) const
-    {
-      return !(*this == it);
-    }
-    
-    const_iterator& operator ++ ()
-    {
-      std::map<I,C>::const_iterator::operator ++ ();
-      return *this;
-    }
-    
-    const_iterator operator ++ (int step)
-    {
-      const_iterator r(*this);
-      std::map<I,C>::const_iterator::operator ++ (step);
-      return r;
-    }
-    
-    const_iterator& operator -- ()
-    {
-      std::map<I,C>::const_iterator::operator -- ();
-      return *this;
-    }
-    
-    const_iterator operator -- (int step)
-    {
-      const_iterator r(*this);
-      std::map<I,C>::const_iterator::operator -- (step);
-      return r;
-    }
-    
-    const I& index() const
-    {
-      return (std::map<I,C>::const_iterator::operator * ()).first;
-    }
-    
-    const C& operator * () const
-    {
-      return (std::map<I,C>::const_iterator::operator * ()).second;
-    }
-    
-    const C* operator -> () const
-    {
-      return &((std::map<I,C>::const_iterator::operator ->()).second);
-    }
-  };
+  typedef typename std::map<I,C>::value_type value_type;
   
   InfiniteVector()
   : std::map<I,C> ()
@@ -205,12 +67,12 @@ public:
   
   const_iterator begin() const
   {
-    return const_iterator(std::map<I,C>::begin());
+    return const_iterator(*this, std::map<I,C>::begin());
   }
   
   const_iterator end() const
   {
-    return const_iterator(std::map<I,C>::end());
+    return const_iterator(*this, std::map<I,C>::end());
   };
   
   size_t size() const
@@ -220,8 +82,8 @@ public:
   
   bool operator == (const InfiniteVector<C,I>& v) const
   {
-#if 0
-    return (size()==v.size()) && std::equal(begin(), end(), v.begin()); // does not compile a.t.m.
+#if 1
+    return (size()==v.size()) && std::equal(this->begin(), this->end(), v.begin()); // does not compile a.t.m.
 #else
     const_iterator it(begin()), vit(v.begin());
     do
@@ -248,12 +110,91 @@ std::ostream& operator << (std::ostream& os, const InfiniteVector<C,I>& v)
     for (typename InfiniteVector<C,I>::const_iterator it(v.begin());
          it != v.end(); ++it)
     {
-      os << it.index() << ": " << *it << std::endl;
+      os << it.index() << ": " << it.value() << std::endl;
     }
   }
   
   return os;
 }
+
+template <class C, class I>
+class InfiniteVectorConstIterator
+: protected std::map<I,C>::const_iterator
+{
+public:
+  typedef typename std::map<I,C>::const_iterator::iterator_category iterator_category;
+  typedef typename std::map<I,C>::const_iterator::difference_type difference_type;
+  typedef typename std::map<I,C>::const_iterator::value_type value_type;
+  typedef typename std::map<I,C>::const_iterator::pointer pointer;
+  typedef typename std::map<I,C>::const_iterator::reference reference;
+  
+private:
+  const InfiniteVector<C,I>& _container;
+  
+public:
+  InfiniteVectorConstIterator(const InfiniteVector<C,I>& container,
+                              typename std::map<I,C>::const_iterator state)
+  : std::map<I,C>::const_iterator(state), _container(container)
+  {
+  }
+
+  bool operator == (const InfiniteVectorConstIterator<C,I>& it) const
+  {
+    return (static_cast<typename std::map<I,C>::const_iterator>(*this)
+            == static_cast<typename std::map<I,C>::const_iterator>(it));
+  }
+  
+  bool operator != (const InfiniteVectorConstIterator<C,I>& it) const
+  {
+    return !(*this == it);
+  }
+  
+  InfiniteVectorConstIterator<C,I>& operator ++ ()
+  {
+    std::map<I,C>::const_iterator::operator ++ ();
+    return *this;
+  }
+ 
+//  InfiniteVectorConstIterator<C,I> operator ++ (int step)
+//  {
+//    InfiniteVectorConstIterator<C,I> r(*this);
+//    std::map<I,C>::const_iterator::operator ++ (step);
+//    return r;
+//  }
+//  
+//  InfiniteVectorConstIterator<C,I>& operator -- ()
+//  {
+//    std::map<I,C>::const_iterator::operator -- ();
+//    return *this;
+//  }
+//  
+//  InfiniteVectorConstIterator<C,I> operator -- (int step)
+//  {
+//    InfiniteVectorConstIterator<C,I> r(*this);
+//    std::map<I,C>::const_iterator::operator -- (step);
+//    return r;
+//  }
+  
+  const I& index() const
+  {
+    return (std::map<I,C>::const_iterator::operator * ()).first;
+  }
+
+  const C& value() const
+  {
+    return (std::map<I,C>::const_iterator::operator * ()).second;
+  }
+
+  const reference operator * () const
+  {
+    return std::map<I,C>::const_iterator::operator * ();
+  }
+  
+  const pointer operator -> () const
+  {
+    return std::map<I,C>::const_iterator::operator -> ();
+  }
+};
 
 template <class C, class I=int>
 class AnotherInfiniteVector
@@ -279,6 +220,22 @@ public:
   {
     return (this->size() == v.size()) && std::equal(this->begin(),this->end(),v.begin());
   }
+};
+
+template <typename Pair>
+struct second_equal_to
+: std::unary_function<const Pair&, bool>
+{
+  second_equal_to(const typename Pair::second_type& value)
+  : value_(value) { }
+  
+  bool operator()(const Pair& p) const
+  {
+    return p.second == value_;
+  }
+  
+private:
+  typename Pair::second_type value_;
 };
 
 int main()
@@ -322,10 +279,15 @@ int main()
   else
     cout << "  ... no!" << endl;
   
-  // test std::count algorithm
+  // test std::count_if() algorithm for std::map
   const double number=23.0;
+  cout << " wmap contains "
+  << std::count_if(wmap.begin(), wmap.end(), second_equal_to<std::map<int,double>::value_type>(number))
+  << " times the number " << number << endl;
+  
+  // test std::count_if() algorithm for InfiniteVector
   cout << "- w contains "
-  << std::count(w.begin(), w.end(), number)
+  << std::count_if(w.begin(), w.end(), second_equal_to<InfiniteVector<double,int>::value_type>(number))
   << " times the number " << number << endl;
 
   return 0;
