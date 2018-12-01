@@ -83,7 +83,9 @@ public:
   bool operator == (const InfiniteVector<C,I>& v) const
   {
 #if 1
-    return (size()==v.size()) && std::equal(this->begin(), this->end(), v.begin()); // does not compile a.t.m.
+    // this implementation is desirable (using code from <algorithm>),
+    // but did not compile under macOS until modifying InfiniteVectorConstIterator::operator *
+    return (size()==v.size()) && std::equal(this->begin(), this->end(), v.begin());
 #else
     const_iterator it(begin()), vit(v.begin());
     do
@@ -155,25 +157,25 @@ public:
     return *this;
   }
  
-//  InfiniteVectorConstIterator<C,I> operator ++ (int step)
-//  {
-//    InfiniteVectorConstIterator<C,I> r(*this);
-//    std::map<I,C>::const_iterator::operator ++ (step);
-//    return r;
-//  }
-//  
-//  InfiniteVectorConstIterator<C,I>& operator -- ()
-//  {
-//    std::map<I,C>::const_iterator::operator -- ();
-//    return *this;
-//  }
-//  
-//  InfiniteVectorConstIterator<C,I> operator -- (int step)
-//  {
-//    InfiniteVectorConstIterator<C,I> r(*this);
-//    std::map<I,C>::const_iterator::operator -- (step);
-//    return r;
-//  }
+  InfiniteVectorConstIterator<C,I> operator ++ (int step)
+  {
+    InfiniteVectorConstIterator<C,I> r(*this);
+    std::map<I,C>::const_iterator::operator ++ (step);
+    return r;
+  }
+  
+  InfiniteVectorConstIterator<C,I>& operator -- ()
+  {
+    std::map<I,C>::const_iterator::operator -- ();
+    return *this;
+  }
+  
+  InfiniteVectorConstIterator<C,I> operator -- (int step)
+  {
+    InfiniteVectorConstIterator<C,I> r(*this);
+    std::map<I,C>::const_iterator::operator -- (step);
+    return r;
+  }
   
   const I& index() const
   {
