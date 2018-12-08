@@ -2,11 +2,11 @@
 
 // +------------------------------------------------------------------------+
 // | This file is part of AMSTeL - the Adaptive MultiScale Template Library |
-// |																		|
-// | Copyright (c) 2002-2018												|
-// | Thorsten Raasch, Manuel Werner, Jens Kappei, Dominik Lellek,			|
-// | Philipp Keding, Alexander Sieber, Henning Zickermann,					|
-// | Ulrich Friedrich, Carsten Weber										|
+// |                                                                        |
+// | Copyright (c) 2002-2018                                                |
+// | Thorsten Raasch, Manuel Werner, Jens Kappei, Dominik Lellek,           |
+// | Philipp Keding, Alexander Sieber, Henning Zickermann,                  |
+// | Ulrich Friedrich, Carsten Weber                                        |
 // +------------------------------------------------------------------------+
 
 #ifndef _AMSTEL_INFINITE_VECTOR_H
@@ -19,231 +19,97 @@
 
 namespace AMSTeL
 {
+  // forward declaration of InfiniteVector<C,I> iterator classes
+  template <class C, class I> class InfiniteVectorConstIterator;
+  
   /*!
     A model class InfiniteVector<C,I> for sparse, infinite-dimensional vectors
       x = (x_i)_{i\in I}
-    with entries from a (scalar) class C.
+    with entries from a (scalar) class C and indices from an ordered class I;
    
-    Although internally, we will model InfiniteVector as a map<I,C>,
-    access to the vector entries is handled by a nested iterator
-    class (compare the deal.II matrix classes) which is STL-compatible.
+    Although internally, we will model InfiniteVector as a std::map<I,C>,
+    access to the vector entries is handled by a custom, STL-compatible
+    iterator class.
   */
   template <class C, class I = int>
   class InfiniteVector
     : protected std::map<I,C>
   {
   public:
+    // friend declarations for iterator classes
+    friend class InfiniteVectorConstIterator<C,I>;
+    typedef InfiniteVectorConstIterator<C,I> const_iterator;
+    
+    // output type for operator * (), used, e.g., by std::count_if()
+    typedef typename std::map<I,C>::value_type value_type;
+    
     /*!
-      \brief default constructor: yields empty (zero) vector
+     \brief default constructor: yields empty (zero) vector
     */
     InfiniteVector();
 
     /*!
-      \brief copy constructor
+     \brief copy constructor
     */
     InfiniteVector(const InfiniteVector<C,I>& v);
 
     /*!
-      \brief STL-compliant const_iterator scanning the nontrivial entries
-    */
-    class const_iterator
-      : protected std::map<I,C>::const_iterator
-    {
-    public:
-      /*!
-	\brief make iterator category accessible
-      */
-      typedef typename std::map<I,C>::const_iterator::iterator_category iterator_category;
-
-      /*!
-	\brief make value type accessible
-      */
-      typedef typename std::map<I,C>::const_iterator::value_type value_type;
-
-      /*!
-	\brief make difference type accessible
-      */
-      typedef typename std::map<I,C>::const_iterator::difference_type difference_type;
-
-      /*!
-	\brief make pointer type accessible
-      */
-      typedef typename std::map<I,C>::const_iterator::pointer pointer;
-
-      /*!
-	\brief make reference type accessible
-      */
-      typedef typename std::map<I,C>::const_iterator::reference reference;
-
-      /*!
-	\brief constructs a const_iterator from a map::const_iterator
-      */
-      const_iterator(const typename std::map<I,C>::const_iterator& entry);
-
-      /*!
-	\brief prefix increment of the const_iterator
-      */
-      const_iterator& operator ++ ();
-
-      /*!
-	\brief postfix increment of the const_iterator
-      */
-      const_iterator operator ++ (int step);
-
-      /*!
-	\brief dereference const_iterator
-      */
-      const C& operator * () const;
-
-      /*!
-	\brief dereference const_iterator
-      */
-      const C* operator -> () const;
-
-      /*!
-	index of current iterator
-	(maybe the only difference to an STL iterator)
-      */
-      I index() const;
-
-      /*!
-	\brief compare positions of two iterators
-      */
-      bool operator == (const const_iterator& it) const;
-
-      /*!
-	\brief non-equality test
-      */
-      bool operator != (const const_iterator& it) const;
-
-      /*!
-	\brief comparison, corresponding to the order relation on I
-       */
-      bool operator < (const const_iterator& it) const;
-    };
-
-    /*!
-      \brief const_iterator pointing to the first nontrivial vector entry
+     \brief const_iterator pointing to the first nontrivial vector entry
     */
     const_iterator begin() const;
 
     /*!
-      \brief const_iterator pointing to one after the last nontrivial vector entry
+     \brief const_iterator pointing to one after the last nontrivial vector entry
     */
     const_iterator end() const;
 
     /*!
-      STL-compliant const_reverse_iterator scanning the nontrivial entries
-      in a reverse way
-    */
-    class const_reverse_iterator
-      : protected std::reverse_iterator<typename std::map<I,C>::const_iterator>
-    {
-    public:
-      /*!
-	\brief constructs a const_reverse_iterator from a map::const_iterator
-      */
-      const_reverse_iterator(const std::reverse_iterator<typename std::map<I,C>::const_iterator>& entry);
-
-      /*!
-	\brief prefix increment of the const_reverse_iterator
-      */
-      const_reverse_iterator& operator ++ ();
-
-      /*!
-	\brief postfix increment of the const_reverse_iterator
-      */
-      const_reverse_iterator operator ++ (int step);
-
-      /*!
-	\brief dereference const_reverse_iterator
-      */
-      const C& operator * () const;
-
-      /*!
-	\brief dereference const_reverse_iterator
-      */
-      const C* operator -> () const;
-
-      /*!
-	index of current iterator
-	(maybe the only difference to an STL iterator)
-      */
-      I index() const;
-
-      /*!
-	\brief compare positions of two iterators
-      */
-      bool operator == (const const_reverse_iterator& it) const;
-
-      /*!
-	\brief non-equality test
-      */
-      bool operator != (const const_reverse_iterator& it) const;
-
-      /*!
-	\brief comparison, corresponding to the order relation on I
-       */
-      bool operator < (const const_reverse_iterator& it) const;
-    };
-
-    /*!
-      \brief const_reverse_iterator pointing to the last nontrivial vector entry
-    */
-    const_reverse_iterator rbegin() const;
-
-    /*!
-      \brief const_reverse_iterator pointing to one before the first last nontrivial vector entry
-    */
-    const_reverse_iterator rend() const;
-
-    /*!
-      \brief assignment from another vector
+     \brief assignment from another vector
     */
     InfiniteVector<C,I>& operator = (const InfiniteVector<C,I>& v);
 
     /*!
-      \brief swap components of two vectors
+     \brief swap components of two vectors
     */
     void swap (InfiniteVector<C,I>& v);
 
     /*!
-      \brief test emptyness
+     \brief test emptyness
     */
     inline bool empty() const { return std::map<I,C>::empty(); }
 
     /*!
-      \brief set infinite vector to zero
+     \brief set infinite vector to zero
     */
     void clear();
     
     /*!
-      \brief equality test
+     \brief equality test
     */
     bool operator == (const InfiniteVector<C,I>& v) const;
 
     /*!
-      \brief non-equality test
+     \brief non-equality test
     */
     bool operator != (const InfiniteVector<C,I>& v) const;
 
     /*!
-      \brief read-only access to the vector entries
+     \brief read-only access to the vector entries
     */
     C operator [] (const I& index) const;
 
     /*!
-      \brief read-only access to the vector entries
+     \brief read-only access to the vector entries
     */
     C get_coefficient(const I& index) const;
 
     /*!
-      \brief read-write access to the vector entries
+     \brief read-write access to the vector entries
     */
     C& operator [] (const I& index);
 
     /*!
-      \brief set a vector entry
+     \brief set a vector entry
     */
     void set_coefficient(const I& index, const C value);
 
@@ -262,13 +128,17 @@ namespace AMSTeL
     */
     void clip(const std::set<I>& supp);
 
-    /*!
-      set all values with modulus strictly below a threshold to zero
-      (fabs<C> should exist)
-    */
-    void compress(const double eta = 1e-15);
-    
-    void shrinkage(const double mu);
+//    /*!
+//      set all values with modulus strictly below a threshold eta to zero
+//      (fabs<C> should exist)
+//    */
+//    void compress(const double eta = 1e-15);
+//
+//    /*!
+//      apply soft thresholding to all values, with threshold mu
+//      (fabs<C> should exist)
+//    */
+//    void shrinkage(const double mu);
 
     /*!
       \brief add a value to a vector entry
@@ -336,9 +206,9 @@ namespace AMSTeL
 				    bool>
     {
       inline bool operator () (const std::pair<I,C>& p1,
-			       const std::pair<I,C>& p2)
+                               const std::pair<I,C>& p2)
       {
-	return (fabs(p1.second) > fabs(p2.second));
+        return (fabs(p1.second) > fabs(p2.second));
       }
     };
 
@@ -367,33 +237,124 @@ namespace AMSTeL
   };
   
   /*!
-    sum of two infinite vectors
-    (you should avoid using this operator, since it requires one vector
-    to be copied. Use += or add() instead!)
+   \brief STL-compliant const_iterator scanning the nontrivial entries
+   */
+  template<class C, class I>
+  class InfiniteVectorConstIterator
+  : protected std::map<I,C>::const_iterator
+  {
+  public:
+    /*!
+     \brief make iterator category accessible
+     */
+    typedef typename std::map<I,C>::const_iterator::iterator_category iterator_category;
+    
+    /*!
+     \brief make value type accessible
+     */
+    typedef typename std::map<I,C>::const_iterator::value_type value_type;
+    
+    /*!
+     \brief make difference type accessible
+     */
+    typedef typename std::map<I,C>::const_iterator::difference_type difference_type;
+    
+    /*!
+     \brief make pointer type accessible
+     */
+    typedef typename std::map<I,C>::const_iterator::pointer pointer;
+    
+    /*!
+     \brief make reference type accessible
+     */
+    typedef typename std::map<I,C>::const_iterator::reference reference;
+    
+  private:
+    const InfiniteVector<C,I>& _container;
+
+  public:
+    /*!
+     \brief constructs a const_iterator from a container and a std::map position
+     */
+    InfiniteVectorConstIterator(const InfiniteVector<C,I>& container,
+                                const typename std::map<I,C>::const_iterator& position);
+    
+    /*!
+     \brief dereference const_iterator
+     */
+    const reference operator * () const;
+    
+    /*!
+     \brief dereference const_iterator
+     */
+    const pointer operator -> () const;
+    
+    /*!
+     \brief index of current iterator
+     */
+    const I& index() const;
+    
+    /*!
+     \brief value of current iterator
+     */
+    const C value() const;
+    
+    /*!
+     \brief compare positions of two iterators
+     */
+    bool operator == (const InfiniteVectorConstIterator<C,I>& it) const;
+    
+    /*!
+     \brief non-equality test
+     */
+    bool operator != (const InfiniteVectorConstIterator<C,I>& it) const;
+    
+    /*!
+     \brief comparison, corresponding to the order relation on I
+     */
+    bool operator < (const InfiniteVectorConstIterator<C,I>& it) const;
+
+    /*!
+     \brief prefix increment of the const_iterator
+     */
+    InfiniteVectorConstIterator& operator ++ ();
+    
+    /*!
+     \brief postfix increment of the const_iterator
+     */
+    InfiniteVectorConstIterator operator ++ (int step);
+  };
+
+  // external InfiniteVector<C,I> functionality
+  
+  /*!
+   sum of two infinite vectors
+   (you should avoid using this operator, since it requires one vector
+   to be copied. Use += or add() instead!)
    */
   template <class C, class I>
   InfiniteVector<C,I> operator + (const InfiniteVector<C,I>& v1,
-				  const InfiniteVector<C,I>& v2)
+                                  const InfiniteVector<C,I>& v2)
   {
     InfiniteVector<C,I> r(v1);
     r += v2;
     return r;
   }
-
+  
   /*!
-    difference of two infinite vectors
-    (you should avoid using this operator, since it requires one vector
-    to be copied. Use -= or sadd() instead!)
+   difference of two infinite vectors
+   (you should avoid using this operator, since it requires one vector
+   to be copied. Use -= or sadd() instead!)
    */
   template <class C, class I>
   InfiniteVector<C,I> operator - (const InfiniteVector<C,I>& v1,
-				  const InfiniteVector<C,I>& v2)
+                                  const InfiniteVector<C,I>& v2)
   {
     InfiniteVector<C,I> r(v1);
     r -= v2;
     return r;
   }
-
+  
   //! sign
   template <class C, class I>
   InfiniteVector<C,I> operator - (const InfiniteVector<C,I>& v)
@@ -402,25 +363,25 @@ namespace AMSTeL
     r -= C(-1);
     return r;
   }
-
+  
   //! scalar multiplication
   template <class C, class I>
   InfiniteVector<C,I> operator * (const C c, const InfiniteVector<C,I>& v)
   {
-     InfiniteVector<C,I> r(v);
-     r *= c;
-     return r;
+    InfiniteVector<C,I> r(v);
+    r *= c;
+    return r;
   }
-
+  
   /*!
-    \brief swap the values of two infinite vectors
-  */
+   \brief swap the values of two infinite vectors
+   */
   template <class C, class I>
   void swap(InfiniteVector<C,I>& v1, InfiniteVector<C,I>& v2);
-
+  
   /*!
-    \brief stream output for infinite vectors
-  */
+   \brief stream output for infinite vectors
+   */
   template<class C, class I>
   std::ostream& operator << (std::ostream& os, const InfiniteVector<C,I>& v);
 }
