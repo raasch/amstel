@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 #include "infinite_vector.h"
 
@@ -27,7 +28,9 @@ namespace AMSTeL
   bool
   InfiniteVector<C,I>::operator == (const InfiniteVector<C,I>& v) const
   {
-//      return std::equal(begin(), end(), v.begin()); // does not compile with Clang under macOS 10.13
+#if 1
+      return std::equal(begin(), end(), v.begin()); // does not compile with Clang under macOS 10.13
+#else
       const_iterator it(begin()), itend(end()), vit(v.begin()), vend(v.end());
       do {
           if (it==itend)
@@ -36,6 +39,7 @@ namespace AMSTeL
               return false;
       } while (*it++ == *vit++);
       return false;
+#endif
   }
 
   template <class C, class I>
@@ -155,11 +159,11 @@ namespace AMSTeL
     const_iterator it(begin()), itend(end());
     typename std::set<I>::const_iterator suppit(supp.begin()), suppend(supp.end());
     for (; it != itend && suppit != suppend; ++it)
-      {
-	while (suppit != suppend && *suppit < it.index()) ++suppit;
-	if (*suppit == it.index())
-	  v.insert(v.end(), std::pair<I,C>(it.index(), *it));
-      }
+    {
+      while (suppit != suppend && *suppit < it.index()) ++suppit;
+        if (*suppit == it.index())
+          v.insert(v.end(), std::pair<I,C>(it.index(), *it));
+    }
 
     std::map<I,C>::swap(v);
   }
@@ -180,17 +184,17 @@ namespace AMSTeL
 
     while (it != itend && itv != itvend)
       {
-	if (it.index() < itv.index())
-	  {
-	    hint2 = help.insert(hint, std::pair<I,C>(it.index(), *it));
-	    hint = hint2;
-	    ++it;
-	  }
-	else
-	  {
-	    if (itv.index() < it.index())
-	      {
-		hint2 = help.insert(hint, std::pair<I,C>(itv.index(), *itv));
+      if (it.index() < itv.index())
+        {
+          hint2 = help.insert(hint, std::pair<I,C>(it.index(), *it));
+          hint = hint2;
+          ++it;
+        }
+      else
+        {
+          if (itv.index() < it.index())
+          {
+              hint2 = help.insert(hint, std::pair<I,C>(itv.index(), *itv));
 		hint = hint2;
 		++itv;
 	      }
