@@ -3,7 +3,7 @@
 // +------------------------------------------------------------------------+
 // | This file is part of AMSTeL - the Adaptive MultiScale Template Library |
 // |                                                                        |
-// | Copyright (c) 2002-2018                                                |
+// | Copyright (c) 2002-2019                                                |
 // | Thorsten Raasch, Manuel Werner, Jens Kappei, Dominik Lellek,           |
 // | Philipp Keding, Alexander Sieber, Henning Zickermann,                  |
 // | Ulrich Friedrich, Carsten Weber                                        |
