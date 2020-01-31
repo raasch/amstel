@@ -5,9 +5,16 @@
 using namespace std;
 
 
-/*This test measures the speed of filling and reading a map with a Key in NxN, in comparison to
-to projecting a Key to an integer and using a map with long int.
-
+/*Reading from a filled map can become expensive for a more complex < operator.
+It might be faster to use a map with integers together with a bijectiv function,
+which image are nonnegativ integers.
+In this test is the key a simple class of two integers and 
+contains comparison-operaters and an output operator for testing purpurses.
+The function nr() in this case is based on the idea cantors diagonal argument.
+If (j,k) is in key, the diagonal lane is determined by j+k.
+The number of all elements up to the lane is (j+k)(j+k+1)/2.
+By adding j to the equation, every key is matched with a unique integer.
+    
 Simon Wardein, Januar 2020
 */
 
@@ -20,33 +27,33 @@ class Key{
     Key(int x, int y)
     {j=x;k=y;}
 
-    // analogical function to Cantors diagonal argument
-    long int nr(){
-        return (j+k-2)*(j+k-1)/2+j;
+    
+    long int nr()
+    {
+        return (j+k)*(j+k+1)/2+j;
     }
-
     bool operator<(const Key& vgl)
     {
         return((j < vgl.j) || ((j == vgl.j) && (k < vgl.k))); 
-    }
-    
-    
-    bool operator!=(Key vgl)
+    }    
+    bool operator!=(const Key& vgl)
     {
         return (j!=vgl.j || k!=vgl.k);
     }
-    friend ostream &operator<< (ostream &ostr, const Key &a);
-    
+    friend ostream &operator<< (ostream &ostr, const Key &o);
     
 };
 
-ostream &operator<< (ostream &ostr,const Key& a)
+ostream &operator<< (ostream &ostr,const Key& o)
     {
-    ostr << '(' << a.j << "," << a.k << ')';
+    ostr << '(' << o.j << "," << o.k << ')';
     return ostr;   
     }
 
-//a class to sort Keys lexicografical in a map
+
+
+//to sort the keys in the map, the following structs where made
+//sorting Keys lexicografical
 struct Key_Compare
 {
    bool operator() (const Key& lhs, const Key& rhs) const
@@ -55,72 +62,59 @@ struct Key_Compare
    }
 };
 
-//a class to sort Keys with nr() in a map
+//sorting Keys with nr()
 struct Key_Compare2
 {
    bool operator() (const Key& lhs, const Key& rhs) const
    {
-       return((lhs.j+lhs.k-2)*(lhs.j+lhs.k-1)/2+lhs.j<(rhs.j+rhs.k-2)*(rhs.j+rhs.k-1)/2+rhs.j);
+       return((lhs.j+lhs.k)*(lhs.j+lhs.k+1)/2+lhs.j<(rhs.j+rhs.k)*(rhs.j+rhs.k+1)/2+rhs.j);
    }
 };
 
 
 
 int main(){
+//upper bound for N
+int N=500;
 
+map<Key,float,Key_Compare> map_Key; //lexicograffical sorting
+map<Key,float,Key_Compare2> map_Key2;//sorting with nr()
+map<long int, float> map_int;       //standard map with long int 
 
-map<Key,float,Key_Compare> map_Key;
-map<Key,float,Key_Compare> map_Key2;
-map<long int, float> map_int;
-
+//filling map
 //dur1: Key with Key_compare
 //dur2: Key with Key_compare2
 //dur3: Integer with nr()
-
-
-//filling map
 
 double dur1, dur2, dur3;
 clock_t start;
 start=clock();
 
-//upper bound for N
-int N=500;
-
 Key It(0,0);
 for(int j=0;j<N;j++){
-    for(int k=0;k<N;k++){
+    for(int k=0;k<N;k++)
+    {
         It.j=j;
         It.k=k;
-        map_Key[It]=1;
-        
-
+        map_Key[It]=1;        
     }
-
-
 }
+
 dur1=( clock() - start ) / (double) CLOCKS_PER_SEC;
 start=clock();
 
-
-
 for(int j=0;j<N;j++){
-    for(int k=0;k<N;k++){
+    for(int k=0;k<N;k++)
+    {
         It.j=j;
         It.k=k;
         
-        map_Key2[It]=1;
-        
-
+        map_Key2[It]=1;        
     }
-
-
 }
+
 dur2=( clock() - start ) / (double) CLOCKS_PER_SEC;
 start=clock();
-
-
-
 
 for(int j=0;j<N;j++){
     for(int k=0;k<N;k++){
@@ -128,11 +122,9 @@ for(int j=0;j<N;j++){
         It.k=k;
         
         map_int[It.nr()]=1;
-
     }
-
-
 }
+
 dur3=( clock() - start ) / (double) CLOCKS_PER_SEC;
 
 //reading map
@@ -149,7 +141,8 @@ start=clock();
 
 
 for(int j=1;j<N;j++){
-    for(int k=1;k<N;k++){
+    for(int k=1;k<N;k++)
+    {
           It.j=j;
         It.k=k;
         r=map_Key[It];
@@ -160,7 +153,8 @@ for(int j=1;j<N;j++){
   start=clock();
 
 for(int j=1;j<N;j++){
-    for(int k=1;k<N;k++){
+    for(int k=1;k<N;k++)
+    {
         It.j=j;
         It.k=k;
         r=map_int[It.nr()];
@@ -172,7 +166,8 @@ start=clock();
 
 
 for(int j=1;j<N;j++){
-    for(int k=1;k<N;k++){
+    for(int k=1;k<N;k++)
+    {
         It.j=j;
         It.k=k;
         r=map_Key[It];
