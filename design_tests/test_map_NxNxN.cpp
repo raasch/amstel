@@ -23,7 +23,6 @@ To determine an unique integer, the NxN version was added with two entries.
 Simon Wardein, May 2020
 */
 
-
 class Key{
     public:
     
