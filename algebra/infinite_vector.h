@@ -6,7 +6,7 @@
 // | Copyright (c) 2002-2020                                                |
 // | Thorsten Raasch, Manuel Werner, Jens Kappei, Dominik Lellek,           |
 // | Philipp Keding, Alexander Sieber, Henning Zickermann,                  |
-// | Ulrich Friedrich, Carsten Weber                                        |
+// | Ulrich Friedrich, Carsten Weber, Simon Wardein                         |
 // +------------------------------------------------------------------------+
 
 #ifndef _AMSTEL_INFINITE_VECTOR_H
