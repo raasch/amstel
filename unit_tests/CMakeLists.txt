@@ -10,3 +10,4 @@ include_directories("${PROJECT_SOURCE_DIR}/..")
 
 add_executable(test_infinite_vector ${PROJECT_SOURCE_DIR}/test_infinite_vector.cpp)
 add_executable(test_array1d ${PROJECT_SOURCE_DIR}/test_array1d.cpp)
+add_executable(test_grid ${PROJECT_SOURCE_DIR}/test_grid.cpp)
