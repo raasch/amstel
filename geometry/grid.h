@@ -13,6 +13,7 @@
 #define _AMSTeL_GRID_H
 
 #include <utils/array1d.h>
+#include <utils/array2d.h>
 
 namespace AMSTeL
 {
@@ -88,10 +89,77 @@ namespace AMSTeL
     Array1D<double> grid_;
   };
 
-  
-  /*
-  grid<2> will be added later
+
+
+/*!
+    specialization of Grid to two space dimensions:
+    2-dimensional grids (quad-meshes) consist of 2 matrices x and y,
+    holding the x- and y-coordinates of the mesh points
   */
+  template <>
+  class Grid<2>
+  {
+  public:
+    /*!
+      default constructor: empty grid
+    */
+    Grid();
+
+    /*!
+      construct a 2D grid from two matrices 
+    */
+    Grid(const Array2D<double>& gridx, const Array2D<double>& gridy);
+
+    /*!
+      construct a 2D tensor product grid from two 1D Grids
+    */
+    Grid(const Grid<1>& gridx, const Grid<1>& gridy);
+
+    /*!
+      construct an equidistant 2D grid with (N_x+1)*(N_y+1) points
+    */
+    Grid(const double& a_1,const double& a_2, const double& b_1, const double&b_2,
+	 const unsigned N_x, const unsigned N_y);
+
+    /*!
+      construct an equidistant 2D grid with (N+1)*(N+1) points
+    */
+    Grid(const double& a_1,const double& a_2, const double& b_1, const double&b_2,
+	 const unsigned int N);
+
+    /*!
+      number of grid points
+    */
+    inline unsigned int size() const { return gridx_.size(); }
+
+    /*!
+      assignment operator
+    */
+    Grid<2>& operator = (const Grid<2>& grid);
+
+    /*!
+      Matlab output of the grid onto a stream
+    */
+    void matlab_output(std::ostream& os) const;
+    
+    /*!
+      Octave-compatible output of the grid onto a stream
+    */
+    void octave_output(std::ostream& os) const;
+    
+    /*!
+      reading access to the grid points
+    */
+    inline const Array2D<double>& gridx() const { return gridx_; }
+    inline const Array2D<double>& gridy() const { return gridy_; }
+    
+  protected:
+    /*!
+      internal storage for the grid points
+      (a 2D array would be sufficient, which is not available at the moment)
+    */
+    Array2D<double> gridx_, gridy_;
+  };
 }
 
 #include <geometry/grid.cpp>
