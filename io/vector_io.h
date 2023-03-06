@@ -3,10 +3,10 @@
 // +------------------------------------------------------------------------+
 // | This file is part of AMSTeL - the Adaptive MultiScale Template Library |
 // |                                                                        |
-// | Copyright (c) 2002-2020                                                |
+// | Copyright (c) 2002-2023                                                |
 // | Thorsten Raasch, Manuel Werner, Jens Kappei, Dominik Lellek,           |
 // | Philipp Keding, Alexander Sieber, Henning Zickermann,                  |
-// | Ulrich Friedrich, Carsten Weber, Simon Wardein                         |
+// | Ulrich Friedrich, Dorian Vogel, Carsten Weber, Simon Wardein           |
 // +------------------------------------------------------------------------+
 
 #ifndef _AMSTEL_VECTOR_IO_H
@@ -27,7 +27,7 @@ namespace AMSTeL
      */
   
     /*!
-     *     generic Matlab-style stream output of the form
+     * generic Matlab-style stream output of the form
      * [x_1 x_2 ... x_n]
      */
     template <class VECTOR>
@@ -43,7 +43,7 @@ namespace AMSTeL
         os << "]";
     }
   
-//   /* temporarily commented out the following file IO routines... they have to be made independent of the VECTOR instance!
+//   /* The following file IO routines are temporarily commented out... they have to be made independent of the VECTOR instance!
 
 //     /*!
 //      * write VECTOR v to ostream

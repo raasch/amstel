@@ -163,7 +163,7 @@ namespace AMSTeL
   };
 
   /*!
-    stream output for arrays
+    Matlab-style stream output for arrays
    */
   template <class C>
   std::ostream& operator << (std::ostream& os, const Array1D<C>& A);

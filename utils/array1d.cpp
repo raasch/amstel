@@ -157,6 +157,7 @@ namespace AMSTeL
   inline
   std::ostream& operator << (std::ostream& os, const Array1D<C>& A)
   {
+    // use generic vector print routine
     print_vector(A, os);
     return os;
   }
