@@ -27,7 +27,7 @@ namespace AMSTeL
       x = (x_i)_{i\in I}
     with entries from a (scalar) class C and indices from an ordered class I;
    
-    Although internally, we will model InfiniteVector as a std::map<I,C>,
+    Although internally, we will model InfiniteVector as a std::map<I,C> by default,
     access to the vector entries is handled by a custom, STL-compatible
     iterator class.
   */
