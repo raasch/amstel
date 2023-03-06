@@ -155,10 +155,10 @@ namespace AMSTeL
 
   template <class C>
   inline
-  std::ostream& operator << (std::ostream& os, const Array1D<C>& A)
+  std::ostream& operator << (std::ostream& os, const Array1D<C>& a)
   {
     // use generic vector print routine
-    print_vector(A, os);
+    print_vector(a, os);
     return os;
   }
 }
