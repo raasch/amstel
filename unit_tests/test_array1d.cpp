@@ -34,9 +34,9 @@ int main()
 
   typedef std::complex<double> C;
   Array1D<C> c(5);
-  c[0]=(3+2);
-  c[1]=(1,1);
-  c[4]=(0.2,0.5);
+  c[0]=C(3+2);
+  c[1]=C(1,1);
+  c[4]=C(0.2,0.5);
   cout << "- an Array1D<complex<double>>(5) c: " << c << endl;
   
   Array1D<C> d(c);
