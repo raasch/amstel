@@ -3,10 +3,10 @@
 // +------------------------------------------------------------------------+
 // | This file is part of AMSTeL - the Adaptive MultiScale Template Library |
 // |                                                                        |
-// | Copyright (c) 2002-2020                                                |
+// | Copyright (c) 2002-2023                                                |
 // | Thorsten Raasch, Manuel Werner, Jens Kappei, Dominik Lellek,           |
 // | Philipp Keding, Alexander Sieber, Henning Zickermann,                  |
-// | Ulrich Friedrich, Carsten Weber, Simon Wardein                         |
+// | Ulrich Friedrich, Dorian Vogel, Carsten Weber, Simon Wardein           |
 // +------------------------------------------------------------------------+
 
 #ifndef _AMSTEL_ARRAY2D_H
