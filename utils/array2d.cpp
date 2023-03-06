@@ -3,6 +3,7 @@
 #include <cassert>
 #include <algorithm>
 #include <iomanip>
+#include "io/matrix_io.h"
 
 namespace AMSTeL
 {
@@ -26,7 +27,7 @@ namespace AMSTeL
       }
   }
 
-   template <class C>
+  template <class C>
   inline
   Array2D<C>::Array2D(const size_type row,const size_type col)
     : size_(col*row),coldim_(col),rowdim_(row)
@@ -181,31 +182,13 @@ namespace AMSTeL
     return coldim_;
   }
 
-
-
   template <class C>
   inline
-  std::ostream& operator << (std::ostream& os, const Array2D<C>& A)
+  std::ostream& operator << (std::ostream& os, const Array2D<C>& a)
   {
-    const unsigned int tabwidth=10;
-    const unsigned int precision=3;
-    if (A.size()==0)
-      os << "[]" << std::endl; // Matlab style
-    else
-      {
-	unsigned int old_precision = os.precision(precision);
-	for (typename Array2D<C>::size_type i(0); i < A.row_dimension(); ++i)
-	  {
-	    for (typename Array2D<C>::size_type j(0); j < A.column_dimension(); ++j)
-	      os << std::setw(tabwidth) << std::setprecision(precision)
-		 << A(i, j);
-	    os << std::endl;
-	  }
-	os.precision(old_precision);
-      }
+    // use generic matrix print routine
+    print_matrix(a, os);
     return os;
   }
 
-
 }
-

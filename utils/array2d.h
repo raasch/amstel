@@ -175,10 +175,10 @@ namespace AMSTeL
   };
 
   /*!
-    stream output for arrays
+    Matlab-style stream output for arrays
    */
   template <class C>
-  std::ostream& operator << (std::ostream& os, const Array2D<C>& A);
+  std::ostream& operator << (std::ostream& os, const Array2D<C>& a);
 }
 
 // include implementation of inline functions

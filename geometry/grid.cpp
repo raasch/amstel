@@ -102,17 +102,5 @@ namespace AMSTeL
     os << "y = "<< gridy_;
     os << ";" << std::endl;
   }
-  
-  inline
-  void
-  Grid<2>::octave_output(std::ostream& os) const
-  {
-    os << "x = "<< gridx_;
-//     os << ";" << std::endl;
-    
-    os << "y = "<<gridy_;
-//     os << ";" << std::endl;
-  }
-  
+   
 }
-  

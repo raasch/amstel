@@ -3,10 +3,10 @@
 // +------------------------------------------------------------------------+
 // | This file is part of AMSTeL - the Adaptive MultiScale Template Library |
 // |                                                                        |
-// | Copyright (c) 2002-2020                                                |
+// | Copyright (c) 2002-2023                                                |
 // | Thorsten Raasch, Manuel Werner, Jens Kappei, Dominik Lellek,           |
 // | Philipp Keding, Alexander Sieber, Henning Zickermann,                  |
-// | Ulrich Friedrich, Carsten Weber, Simon Wardein                         |
+// | Ulrich Friedrich, Dorian Vogel, Carsten Weber, Simon Wardein           |
 // +------------------------------------------------------------------------+
 
 #ifndef _AMSTeL_GRID_H
@@ -22,7 +22,10 @@ namespace AMSTeL
     style of Matlab. There, rectangular grids are the core ingredients for plotting
     functions from n-D to m-D.
     A 1-dimensional grid is just a vector x holding the mesh points.
-    A 2-dimensional grid will be added later
+    A 2-dimensional grid (a so-called quad-mesh) consists of 2 matrices x and y,
+    holding the x- and y-coordinates of the mesh points.
+    
+    reference: Matlab/Octave help for the command 'surf'
    */
   template <unsigned int DIM>
   class Grid
@@ -46,7 +49,7 @@ namespace AMSTeL
 
   /*!
     specialization of Grid to one space dimension:
-    1-dimensional grids are just vectors holding the mesh points.
+    1-dimensional grids are just vectors (1D arrays) holding the mesh points.
   */
   template <>
   class Grid<1>
@@ -89,11 +92,9 @@ namespace AMSTeL
     Array1D<double> grid_;
   };
 
-
-
 /*!
     specialization of Grid to two space dimensions:
-    2-dimensional grids (quad-meshes) consist of 2 matrices x and y,
+    2-dimensional grids (quad-meshes) consist of 2 matrices (2D arrays) x and y,
     holding the x- and y-coordinates of the mesh points
   */
   template <>
@@ -143,12 +144,7 @@ namespace AMSTeL
     void matlab_output(std::ostream& os) const;
     
     /*!
-      Octave-compatible output of the grid onto a stream
-    */
-    void octave_output(std::ostream& os) const;
-    
-    /*!
-      reading access to the grid points
+      read access to the grid points
     */
     inline const Array2D<double>& gridx() const { return gridx_; }
     inline const Array2D<double>& gridy() const { return gridy_; }
@@ -156,7 +152,6 @@ namespace AMSTeL
   protected:
     /*!
       internal storage for the grid points
-      (a 2D array would be sufficient, which is not available at the moment)
     */
     Array2D<double> gridx_, gridy_;
   };
