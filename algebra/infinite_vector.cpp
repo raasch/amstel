@@ -13,60 +13,60 @@ namespace AMSTeL
 {
   // implementation of InfiniteVector member functions
   
-  template <class C, class I>
-  InfiniteVector<C,I>::InfiniteVector()
-    : std::map<I,C>()
+  template <class C, class I, class CONTAINER>
+  InfiniteVector<C,I,CONTAINER>::InfiniteVector()
+    : CONTAINER()
   {
   }
 
-  template <class C, class I>
-  InfiniteVector<C,I>::InfiniteVector(const InfiniteVector<C,I>& v)
-    : std::map<I,C>(v)
+  template <class C, class I, class CONTAINER>
+  InfiniteVector<C,I,CONTAINER>::InfiniteVector(const InfiniteVector<C,I,CONTAINER>& v)
+    : CONTAINER(v)
   {
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  typename InfiniteVector<C,I>::const_iterator
-  InfiniteVector<C,I>::begin() const
+  typename InfiniteVector<C,I,CONTAINER>::const_iterator
+  InfiniteVector<C,I,CONTAINER>::begin() const
   {
-    return const_iterator(*this, std::map<I,C>::begin());
+    return const_iterator(*this, CONTAINER::begin());
   }
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  typename InfiniteVector<C,I>::const_iterator
-  InfiniteVector<C,I>::end() const
+  typename InfiniteVector<C,I,CONTAINER>::const_iterator
+  InfiniteVector<C,I,CONTAINER>::end() const
   {
-    return const_iterator(*this, std::map<I,C>::end());
+    return const_iterator(*this, CONTAINER::end());
   }
   
-  template <class C, class I>
-  InfiniteVector<C,I>&
-  InfiniteVector<C,I>::operator = (const InfiniteVector<C,I>& v)
+  template <class C, class I, class CONTAINER>
+  InfiniteVector<C,I,CONTAINER>&
+  InfiniteVector<C,I,CONTAINER>::operator = (const InfiniteVector<C,I,CONTAINER>& v)
   {
-    std::map<I,C>::operator = (v);
+    CONTAINER::operator = (v);
     return *this;
   }
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  void InfiniteVector<C,I>::swap(InfiniteVector<C,I>& v)
+  void InfiniteVector<C,I,CONTAINER>::swap(InfiniteVector<C,I,CONTAINER>& v)
   {
-    std::map<I,C>::swap(v);
+    CONTAINER::swap(v);
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  void InfiniteVector<C,I>::clear()
+  void InfiniteVector<C,I,CONTAINER>::clear()
   {
-    std::map<I,C>::clear();
+    CONTAINER::clear();
   }
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
   bool
-  InfiniteVector<C,I>::operator == (const InfiniteVector<C,I>& v) const
+  InfiniteVector<C,I,CONTAINER>::operator == (const InfiniteVector<C,I,CONTAINER>& v) const
   {
 #if 1
     // this implementation is desirable (using code from <algorithm>),
@@ -84,81 +84,81 @@ namespace AMSTeL
 #endif
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
   bool
-  InfiniteVector<C,I>::operator != (const InfiniteVector<C,I>& v) const
+  InfiniteVector<C,I,CONTAINER>::operator != (const InfiniteVector<C,I,CONTAINER>& v) const
   {
     return !((*this) == v);
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  C InfiniteVector<C,I>::operator [] (const I& index) const
+  C InfiniteVector<C,I,CONTAINER>::operator [] (const I& index) const
   {
     return get_coefficient(index);
   }
 
-  template <class C, class I>
-  C InfiniteVector<C,I>::get_coefficient(const I& index) const
+  template <class C, class I, class CONTAINER>
+  C InfiniteVector<C,I,CONTAINER>::get_coefficient(const I& index) const
   {
-    typename std::map<I,C>::const_iterator it(this->lower_bound(index));
-    if (it != std::map<I,C>::end())
+    typename CONTAINER::const_iterator it(this->lower_bound(index));
+    if (it != CONTAINER::end())
       {
-        if (!std::map<I,C>::key_comp()(index, it->first))
+        if (!CONTAINER::key_comp()(index, it->first))
           return it->second;
       }
     return C(0);
   }
 
-  template <class C, class I>
-  C& InfiniteVector<C,I>::operator [] (const I& index)
+  template <class C, class I, class CONTAINER>
+  C& InfiniteVector<C,I,CONTAINER>::operator [] (const I& index)
   {
     // efficient add-or-update, cf. Meyers, Effective STL
-    typename std::map<I,C>::iterator it(this->lower_bound(index));
-    if (it != std::map<I,C>::end() &&
-        !std::map<I,C>::key_comp()(index, it->first))
+    typename CONTAINER::iterator it(this->lower_bound(index));
+    if (it != CONTAINER::end() &&
+        !CONTAINER::key_comp()(index, it->first))
       return it->second;
     else
-      return std::map<I,C>::insert(it, typename std::map<I,C>::value_type(index, C(0)))->second;
-// alternative: return std::map<I,C>::insert(typename std::map<I,C>::value_type(index, C(0))).first->second;
+      return CONTAINER::insert(it, typename CONTAINER::value_type(index, C(0)))->second;
+// alternative: return CONTAINER::insert(typename CONTAINER::value_type(index, C(0))).first->second;
   }
 
-  template <class C, class I>
-  void InfiniteVector<C,I>::set_coefficient(const I& index, const C value)
+  template <class C, class I, class CONTAINER>
+  void InfiniteVector<C,I,CONTAINER>::set_coefficient(const I& index, const C value)
   {
-    typename std::map<I,C>::iterator it(this->lower_bound(index));
-    if (it != std::map<I,C>::end() &&
-        !std::map<I,C>::key_comp()(index,it->first)) {
+    typename CONTAINER::iterator it(this->lower_bound(index));
+    if (it != CONTAINER::end() &&
+        !CONTAINER::key_comp()(index,it->first)) {
       it->second = value;
     }
     else {
-      std::map<I,C>::insert(it, typename std::map<I,C>::value_type(index, value));
-      //std::map<I,C>::insert(typename std::map<I,C>::value_type(index, value));
+      CONTAINER::insert(it, typename CONTAINER::value_type(index, value));
+      //CONTAINER::insert(typename CONTAINER::value_type(index, value));
     }
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  size_t InfiniteVector<C,I>::size() const
+  size_t InfiniteVector<C,I,CONTAINER>::size() const
   {
-    return std::map<I,C>::size();
+    return CONTAINER::size();
   }
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   void
-  InfiniteVector<C,I>::support(std::set<I>& supp) const
+  InfiniteVector<C,I,CONTAINER>::support(std::set<I>& supp) const
   {
     supp.clear();
     for (const_iterator it(begin()), itend(end()); it != itend; ++it)
       supp.insert(supp.end(), it.index());
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   void
-  InfiniteVector<C,I>::clip(const std::set<I>& supp)
+  InfiniteVector<C,I,CONTAINER>::clip(const std::set<I>& supp)
   {
-    std::map<I,C> v;
+    CONTAINER v;
 
     const_iterator it(begin()), itend(end());
     typename std::set<I>::const_iterator suppit(supp.begin()), suppend(supp.end());
@@ -169,19 +169,19 @@ namespace AMSTeL
           v.insert(v.end(), std::pair<I,C>(it.index(), it.value()));
       }
 
-    std::map<I,C>::swap(v);
+    CONTAINER::swap(v);
   }
 
 //  template <class C, class I>
 //  void InfiniteVector<C,I>::compress(const double eta)
 //  {
 //    // a hardcore STL implementation inspired by Meyers, Effective STL:
-//    std::map<I,C> v;
-//    std::remove_copy_if(std::map<I,C>::begin(),
-//                        std::map<I,C>::end(),
+//    CONTAINER v;
+//    std::remove_copy_if(CONTAINER::begin(),
+//                        CONTAINER::end(),
 //                        std::inserter(v, v.end()),
 //                        threshold_criterion<I,C>(eta));
-//    std::map<I,C>::swap(v);
+//    CONTAINER::swap(v);
 //  }
 //
 //  template <class C, class I>
@@ -192,7 +192,7 @@ namespace AMSTeL
 //    for (typename InfiniteVector<C,I>::const_iterator it(begin()),
 //         itend(end()); it != itend; ++it){
 //      //        if(*it<=mu)
-//      //            std::map<I,C>::erase(it.index());
+//      //            CONTAINER::erase(it.index());
 //      if(*it>mu)
 //        set_coefficient(it.index(), *it-0.5*mu);
 //      if(*it < -mu)
@@ -200,35 +200,35 @@ namespace AMSTeL
 //    }
 //  }
   
-  template <class C, class I>
-  void InfiniteVector<C,I>::add_coefficient(const I& index, const C increment)
+  template <class C, class I, class CONTAINER>
+  void InfiniteVector<C,I,CONTAINER>::add_coefficient(const I& index, const C increment)
   {
     // efficient add-or-update, cf. Meyers, Effective STL
-    typename std::map<I,C>::iterator it(this->lower_bound(index));
-    if (it != std::map<I,C>::end() &&
-        !std::map<I,C>::key_comp()(index, it->first))
+    typename CONTAINER::iterator it(this->lower_bound(index));
+    if (it != CONTAINER::end() &&
+        !CONTAINER::key_comp()(index, it->first))
     {
       // we already have a nontrivial coefficient
       if ((it->second += increment) == C(0))
-        std::map<I,C>::erase(it);
+        CONTAINER::erase(it);
     } else {
       // insert the increment as new coefficient
-      std::map<I,C>::insert(it, typename std::map<I,C>::value_type(index, increment));
+      CONTAINER::insert(it, typename CONTAINER::value_type(index, increment));
     }
   }
   
-  template <class C, class I>
-  void InfiniteVector<C,I>::add(const InfiniteVector<C,I>& v)
+  template <class C, class I, class CONTAINER>
+  void InfiniteVector<C,I,CONTAINER>::add(const InfiniteVector<C,I,CONTAINER>& v)
   {
 #if 1
-    std::map<I,C> help;
+    CONTAINER help;
 
     // The following O(N) algorithm is adapted from the STL algorithm set_union(),
     // cf. stl_algo.h ...
 
-    typename InfiniteVector<C,I>::const_iterator it(begin()), itend(end()),
+    typename InfiniteVector<C,I,CONTAINER>::const_iterator it(begin()), itend(end()),
       itv(v.begin()), itvend(v.end());
-    typename std::map<I,C>::iterator hint(help.begin()), hint2(help.begin());
+    typename CONTAINER::iterator hint(help.begin()), hint2(help.begin());
 
     while (it != itend && itv != itvend)
       {
@@ -273,10 +273,10 @@ namespace AMSTeL
       ++itv;
     }
 
-    std::map<I,C>::swap(help);
+    CONTAINER::swap(help);
 #else
     // the following code can be optimized (not O(N) now)
-    typename InfiniteVector<C,I>::const_iterator itv(v.begin()), itvend(v.end());
+    typename InfiniteVector<C,I,CONTAINER>::const_iterator itv(v.begin()), itvend(v.end());
     for (; itv != itvend; ++itv)
       {
         C help(get_coefficient(itv.index()) + itv.value());
@@ -284,23 +284,23 @@ namespace AMSTeL
         if (help != C(0))
           set_coefficient(itv.index(), help);
         else
-          std::map<I,C>::erase(itv.index());
+          CONTAINER::erase(itv.index());
       }
 #endif
   }
 
-  template <class C, class I>
-  void InfiniteVector<C,I>::add(const C s, const InfiniteVector<C,I>& v)
+  template <class C, class I, class CONTAINER>
+  void InfiniteVector<C,I,CONTAINER>::add(const C s, const InfiniteVector<C,I,CONTAINER>& v)
   {
 #if 1
-    std::map<I,C> help;
+    CONTAINER help;
 
     // The following O(N) algorithm is adapted from the STL algorithm set_union(),
     // cf. stl_algo.h ...
 
-    typename InfiniteVector<C,I>::const_iterator it(begin()), itend(end()),
+    typename InfiniteVector<C,I,CONTAINER>::const_iterator it(begin()), itend(end()),
       itv(v.begin()), itvend(v.end());
-    typename std::map<I,C>::iterator hint(help.begin()), hint2(help.begin());
+    typename CONTAINER::iterator hint(help.begin()), hint2(help.begin());
 
     while (it != itend && itv != itvend)
       {
@@ -345,33 +345,33 @@ namespace AMSTeL
         ++itv;
       }
 
-    std::map<I,C>::swap(help);
+    CONTAINER::swap(help);
 #else
     // the following code can be optimized (not O(N) now)
-    typename InfiniteVector<C,I>::const_iterator itv(v.begin()), itvend(v.end());
+    typename InfiniteVector<C,I,CONTAINER>::const_iterator itv(v.begin()), itvend(v.end());
     for (; itv != itvend; ++itv)
       {
         C help(get_coefficient(itv.index()) + s * itv.value());
         if (help != C(0))
           set_coefficient(itv.index(), help);
         else
-          std::map<I,C>::erase(itv.index());
+          CONTAINER::erase(itv.index());
       }
 #endif
   }
 
-  template <class C, class I>
-  void InfiniteVector<C,I>::sadd(const C s, const InfiniteVector<C,I>& v)
+  template <class C, class I, class CONTAINER>
+  void InfiniteVector<C,I,CONTAINER>::sadd(const C s, const InfiniteVector<C,I,CONTAINER>& v)
   {
 #if 1
-    std::map<I,C> help;
+    CONTAINER help;
 
     // The following O(N) algorithm is adapted from the STL algorithm set_union(),
     // cf. stl_algo.h ...
 
-    typename InfiniteVector<C,I>::const_iterator it(begin()), itend(end()),
+    typename InfiniteVector<C,I,CONTAINER>::const_iterator it(begin()), itend(end()),
       itv(v.begin()), itvend(v.end());
-    typename std::map<I,C>::iterator hint(help.begin()), hint2(help.begin());
+    typename CONTAINER::iterator hint(help.begin()), hint2(help.begin());
 
     while (it != itend && itv != itvend)
       {
@@ -417,55 +417,55 @@ namespace AMSTeL
         ++itv;
       }
 
-    std::map<I,C>::swap(help);
+    CONTAINER::swap(help);
 #else
     // the following code can be optimized (not O(N) now)
-    typename InfiniteVector<C,I>::const_iterator itv(v.begin()), itvend(v.end());
+    typename InfiniteVector<C,I,CONTAINER>::const_iterator itv(v.begin()), itvend(v.end());
     for (; itv != itvend; ++itv)
       {
         C help(s * get_coefficient(itv.index()) + itv.value());
         if (help != C(0))
           set_coefficient(itv.index(), help);
         else
-          std::map<I,C>::erase(itv.index());
+          CONTAINER::erase(itv.index());
       }
 #endif
   }
 
-  template <class C, class I>
-  void InfiniteVector<C,I>::scale(const C s)
+  template <class C, class I, class CONTAINER>
+  void InfiniteVector<C,I,CONTAINER>::scale(const C s)
   {
     if (s == C(0))
       clear();
     else
       {
-        typename std::map<I,C>::iterator it(std::map<I,C>::begin()),
-        itend(std::map<I,C>::end());
+        typename CONTAINER::iterator it(CONTAINER::begin()),
+        itend(CONTAINER::end());
         while(it != itend)
           (*it++).second *= s;
       }
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  InfiniteVector<C,I>& InfiniteVector<C,I>::operator += (const InfiniteVector<C,I>& v)
+  InfiniteVector<C,I,CONTAINER>& InfiniteVector<C,I,CONTAINER>::operator += (const InfiniteVector<C,I,CONTAINER>& v)
   {
     add(v);
     return *this;
   }
 
-  template <class C, class I>
-  void InfiniteVector<C,I>::subtract(const InfiniteVector<C,I>& v)
+  template <class C, class I, class CONTAINER>
+  void InfiniteVector<C,I,CONTAINER>::subtract(const InfiniteVector<C,I,CONTAINER>& v)
   {
 #if 1
-    std::map<I,C> help;
+    CONTAINER help;
 
     // The following O(N) algorithm is adapted from the STL algorithm set_union(),
     // cf. stl_algo.h ...
 
-    typename InfiniteVector<C,I>::const_iterator it(begin()), itend(end()),
+    typename InfiniteVector<C,I,CONTAINER>::const_iterator it(begin()), itend(end()),
       itv(v.begin()), itvend(v.end());
-    typename std::map<I,C>::iterator hint(help.begin()), hint2(help.begin());
+    typename CONTAINER::iterator hint(help.begin()), hint2(help.begin());
 
     while (it != itend && itv != itvend)
       {
@@ -511,52 +511,52 @@ namespace AMSTeL
         ++itv;
       }
 
-    std::map<I,C>::swap(help);
+    CONTAINER::swap(help);
 #else
     // the following code can be optimized (not O(N) now)
-    typename InfiniteVector<C,I>::const_iterator itv(v.begin()), itvend(v.end());
+    typename InfiniteVector<C,I,CONTAINER>::const_iterator itv(v.begin()), itvend(v.end());
     for (; itv != itvend; ++itv)
       {
         C help(get_coefficient(itv.index()) - itv.value());
         if (help != C(0))
           set_coefficient(itv.index(), help);
         else
-          std::map<I,C>::erase(itv.index());
+          CONTAINER::erase(itv.index());
       }
 #endif
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  InfiniteVector<C,I>& InfiniteVector<C,I>::operator -= (const InfiniteVector<C,I>& v)
+  InfiniteVector<C,I,CONTAINER>& InfiniteVector<C,I,CONTAINER>::operator -= (const InfiniteVector<C,I,CONTAINER>& v)
   {
     subtract(v);
     return *this;
   }
    
-  template <class C, class I>
-  InfiniteVector<C,I>& InfiniteVector<C,I>::operator *= (const C s)
+  template <class C, class I, class CONTAINER>
+  InfiniteVector<C,I,CONTAINER>& InfiniteVector<C,I,CONTAINER>::operator *= (const C s)
   {
     scale(s);
     return *this;
   }
 
-  template <class C, class I>
-  InfiniteVector<C,I>& InfiniteVector<C,I>::operator /= (const C s)
+  template <class C, class I, class CONTAINER>
+  InfiniteVector<C,I,CONTAINER>& InfiniteVector<C,I,CONTAINER>::operator /= (const C s)
   {
     // we don't catch the division by zero exception here!
     return (*this *= 1.0/s);
   }
 
-  template <class C, class I>
-  const C InfiniteVector<C,I>::operator * (const InfiniteVector<C,I>& v) const
+  template <class C, class I, class CONTAINER>
+  const C InfiniteVector<C,I,CONTAINER>::operator * (const InfiniteVector<C,I,CONTAINER>& v) const
   {
-    if (this == reinterpret_cast<const InfiniteVector<C,I>*>(&v))
+    if (this == reinterpret_cast<const InfiniteVector<C,I,CONTAINER>*>(&v))
       return l2_norm_sqr(*this);
 
     C r(0);
     
-    for (typename InfiniteVector<C,I>::const_iterator
+    for (typename InfiniteVector<C,I,CONTAINER>::const_iterator
          it(begin()),
          itend(end()),
          itv(v.begin()),
@@ -572,11 +572,11 @@ namespace AMSTeL
     return r;
   }
 
-  template <class C, class I>
-  double operator * (const InfiniteVector<C,I>& v, const InfiniteVector<C,I>& w)
+  template <class C, class I, class CONTAINER>
+  double operator * (const InfiniteVector<C,I,CONTAINER>& v, const InfiniteVector<C,I,CONTAINER>& w)
   {
     double r(0);
-    typedef typename InfiniteVector<C,I>::const_iterator const_iterator;
+    typedef typename InfiniteVector<C,I,CONTAINER>::const_iterator const_iterator;
     const_iterator itv(v.begin()), itvend(v.end()), itw(w.begin()), itwend(w.end());
     for (; itv != itvend && itw != itwend; ++itv)
       {
@@ -587,8 +587,8 @@ namespace AMSTeL
     return r;
   }
 
-  template <class C, class I>
-  double InfiniteVector<C,I>::weak_norm(const double tau) const
+  template <class C, class I, class CONTAINER>
+  double InfiniteVector<C,I,CONTAINER>::weak_norm(const double tau) const
   {
     double r(0.0);
 
@@ -615,8 +615,8 @@ namespace AMSTeL
     return r;
   }
 
-  template <class C, class I>
-  void InfiniteVector<C,I>::COARSE(const double eps, InfiniteVector<C,I>& v) const
+  template <class C, class I, class CONTAINER>
+  void InfiniteVector<C,I,CONTAINER>::COARSE(const double eps, InfiniteVector<C,I,CONTAINER>& v) const
   {
     // We use a straightforward implementation with complexity O(N*log(N)):
     // - sort my entries in modulus
@@ -668,10 +668,10 @@ namespace AMSTeL
     }
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   const double
-  InfiniteVector<C,I>::wrmsqr_norm(const double atol, const double rtol,
-				   const InfiniteVector<C,I>& v, const InfiniteVector<C,I>& w) const
+  InfiniteVector<C,I,CONTAINER>::wrmsqr_norm(const double atol, const double rtol,
+				   const InfiniteVector<C,I,CONTAINER>& v, const InfiniteVector<C,I,CONTAINER>& w) const
   {
     double result = 0;
     
@@ -688,107 +688,107 @@ namespace AMSTeL
   }
 
   //
-  // implementation of InfiniteVector<C,I>::const_iterator class
+  // implementation of InfiniteVector::const_iterator class
 
-  template <class C, class I>
-  InfiniteVectorConstIterator<C,I>::InfiniteVectorConstIterator
-    (const InfiniteVector<C,I>& container,
-     const typename std::map<I,C>::const_iterator& position)
-  : std::map<I,C>::const_iterator(position), _container(container)
+  template <class C, class I, class CONTAINER>
+  InfiniteVectorConstIterator<C,I,CONTAINER>::InfiniteVectorConstIterator
+    (const InfiniteVector<C,I,CONTAINER>& container,
+     const typename CONTAINER::const_iterator& position)
+  : CONTAINER::const_iterator(position), _container(container)
   {
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  const typename InfiniteVectorConstIterator<C,I>::reference
-  InfiniteVectorConstIterator<C,I>::operator * () const
+  const typename InfiniteVectorConstIterator<C,I,CONTAINER>::reference
+  InfiniteVectorConstIterator<C,I,CONTAINER>::operator * () const
   {
-    return std::map<I,C>::const_iterator::operator * ();
+    return CONTAINER::const_iterator::operator * ();
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  const typename InfiniteVectorConstIterator<C,I>::pointer
-  InfiniteVectorConstIterator<C,I>::operator -> () const
+  const typename InfiniteVectorConstIterator<C,I,CONTAINER>::pointer
+  InfiniteVectorConstIterator<C,I,CONTAINER>::operator -> () const
   {
-    return std::map<I,C>::const_iterator::operator -> ();
+    return CONTAINER::const_iterator::operator -> ();
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
   const I&
-  InfiniteVectorConstIterator<C,I>::index() const
+  InfiniteVectorConstIterator<C,I,CONTAINER>::index() const
   {
-    return (std::map<I,C>::const_iterator::operator *()).first;
+    return (CONTAINER::const_iterator::operator *()).first;
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
   const C
-  InfiniteVectorConstIterator<C,I>::value() const
+  InfiniteVectorConstIterator<C,I,CONTAINER>::value() const
   {
-    return (std::map<I,C>::const_iterator::operator *()).second;
+    return (CONTAINER::const_iterator::operator *()).second;
   }
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
   bool
-  InfiniteVectorConstIterator<C,I>::
-  operator == (const InfiniteVectorConstIterator<C,I>& it) const
+  InfiniteVectorConstIterator<C,I,CONTAINER>::
+  operator == (const InfiniteVectorConstIterator<C,I,CONTAINER>& it) const
   {
-    return (static_cast<typename std::map<I,C>::const_iterator>(*this)
-            == static_cast<typename std::map<I,C>::const_iterator>(it));
+    return (static_cast<typename CONTAINER::const_iterator>(*this)
+            == static_cast<typename CONTAINER::const_iterator>(it));
   }
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
   bool
-  InfiniteVectorConstIterator<C,I>::
-  operator != (const InfiniteVectorConstIterator<C,I>& it) const
+  InfiniteVectorConstIterator<C,I,CONTAINER>::
+  operator != (const InfiniteVectorConstIterator<C,I,CONTAINER>& it) const
   {
     return !(*this == it);
   }
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
   bool
-  InfiniteVectorConstIterator<C,I>::
-  operator < (const InfiniteVectorConstIterator<C,I>& it) const
+  InfiniteVectorConstIterator<C,I,CONTAINER>::
+  operator < (const InfiniteVectorConstIterator<C,I,CONTAINER>& it) const
   {
     return (index() < it.index());
   }
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  InfiniteVectorConstIterator<C,I>&
-  InfiniteVectorConstIterator<C,I>::operator ++ ()
+  InfiniteVectorConstIterator<C,I,CONTAINER>&
+  InfiniteVectorConstIterator<C,I,CONTAINER>::operator ++ ()
   {
-    std::map<I,C>::const_iterator::operator ++ ();
+    CONTAINER::const_iterator::operator ++ ();
     return *this;
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  InfiniteVectorConstIterator<C,I>
-  InfiniteVectorConstIterator<C,I>::operator ++ (int step)
+  InfiniteVectorConstIterator<C,I,CONTAINER>
+  InfiniteVectorConstIterator<C,I,CONTAINER>::operator ++ (int step)
   {
-    InfiniteVectorConstIterator<C,I> r(*this);
-    std::map<I,C>::const_iterator::operator ++ (step);
+    InfiniteVectorConstIterator<C,I,CONTAINER> r(*this);
+    CONTAINER::const_iterator::operator ++ (step);
     return r;
   }
 
-  // implementation of external InfiniteVector<C,I> functionality
+  // implementation of external InfiniteVector functionality
   
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   inline
-  void swap(InfiniteVector<C,I>& v1, InfiniteVector<C,I>& v2)
+  void swap(InfiniteVector<C,I,CONTAINER>& v1, InfiniteVector<C,I,CONTAINER>& v2)
   {
     v1.swap(v2);
   }
 
-  template <class C, class I>
+  template <class C, class I, class CONTAINER>
   std::ostream& operator << (std::ostream& os,
-			     const InfiniteVector<C,I>& v)
+			     const InfiniteVector<C,I,CONTAINER>& v)
   {
     if (v.begin() ==  v.end())
       {
@@ -796,7 +796,7 @@ namespace AMSTeL
       }
     else
       {
-        for (typename InfiniteVector<C,I>::const_iterator it(v.begin());
+        for (typename InfiniteVector<C,I,CONTAINER>::const_iterator it(v.begin());
              it != v.end(); ++it)
         {
           os << it.index() << ": " << it.value() << std::endl;
