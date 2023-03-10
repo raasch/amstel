@@ -27,11 +27,14 @@ namespace AMSTeL
       x = (x_i)_{i\in I}
     with entries from a (scalar) class C and indices from an ordered class I;
    
-    Internally, the vector entries are be stored in a container class given by
-    the template parameter CONTAINER. The default value of CONTAINER is std::map<I,C>
-    which yields a robust but not the most efficient implementation for large-scale
-    simulations. For such use cases, set CONTAINER to std::unordered_map<I,C>
-    or even to a more cache-friendly, proprietary container class.
+    Internally, the vector entries are stored in a container class given by
+    the template parameter CONTAINER. The default value of CONTAINER is std::map<I,C>,
+    i.e., a sorted container class based on red-black trees.
+    You can also choose hashed containers like CONTAINER=std::unordered_map<I,C>,
+    but please note that all stream outputs will then be unordered as well.
+    For large-scale simulations one might even like to use a more cache-friendly,
+    proprietary container class which, however, would have to be tested against
+    InfiniteVector.
 
     The class InfiniteVector provides access to the vector entries via a custom,
     STL-compatible iterator class, and adds some linear algebra functionality
@@ -247,7 +250,7 @@ namespace AMSTeL
    */
   template<class C, class I, class CONTAINER>
   class InfiniteVectorConstIterator
-  : protected std::map<I,C,CONTAINER>::const_iterator
+  : protected CONTAINER::const_iterator
   {
   public:
     /*!

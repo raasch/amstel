@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <unordered_map>
+#include <type_traits>
 
 #include "infinite_vector.h"
 
@@ -102,39 +104,77 @@ namespace AMSTeL
   template <class C, class I, class CONTAINER>
   C InfiniteVector<C,I,CONTAINER>::get_coefficient(const I& index) const
   {
-    typename CONTAINER::const_iterator it(this->lower_bound(index));
-    if (it != CONTAINER::end())
+    // note: the following code, avoiding explicit specializations, will only compile in C++17 and onwards
+    if constexpr (std::is_same_v<std::unordered_map<I,C>, CONTAINER>)
+    {
+      // specialization for unordered container classes like std::unordered_map
+      typename CONTAINER::const_iterator it(this->find(index));
+      if (it != CONTAINER::end())
+        return it->second;
+    }
+    else
+    {
+      // generic code for ordered container classes like std::map
+      typename CONTAINER::const_iterator it(this->lower_bound(index));
+      if (it != CONTAINER::end())
       {
         if (!CONTAINER::key_comp()(index, it->first))
           return it->second;
       }
+    }
     return C(0);
   }
 
   template <class C, class I, class CONTAINER>
   C& InfiniteVector<C,I,CONTAINER>::operator [] (const I& index)
   {
-    // efficient add-or-update, cf. Meyers, Effective STL
-    typename CONTAINER::iterator it(this->lower_bound(index));
-    if (it != CONTAINER::end() &&
-        !CONTAINER::key_comp()(index, it->first))
-      return it->second;
+  // note: the following code, avoiding explicit specializations, will only compile in C++17 and onwards
+    if constexpr (std::is_same_v<std::unordered_map<I,C>, CONTAINER>)
+    {
+      typename CONTAINER::iterator it(this->find(index));
+      if (it != CONTAINER::end())
+        return it->second;
+      else
+        return CONTAINER::insert(it, typename CONTAINER::value_type(index, C(0)))->second;
+    }
     else
-      return CONTAINER::insert(it, typename CONTAINER::value_type(index, C(0)))->second;
-// alternative: return CONTAINER::insert(typename CONTAINER::value_type(index, C(0))).first->second;
+    {
+      // generic code for ordered container classes like std::map
+      // efficient add-or-update, cf. Meyers, Effective STL
+      typename CONTAINER::iterator it(this->lower_bound(index));
+      if (it != CONTAINER::end() &&
+          !CONTAINER::key_comp()(index, it->first))
+        return it->second;
+      else
+        return CONTAINER::insert(it, typename CONTAINER::value_type(index, C(0)))->second;
+        // alternative: return CONTAINER::insert(typename CONTAINER::value_type(index, C(0))).first->second;
+    }
   }
 
   template <class C, class I, class CONTAINER>
   void InfiniteVector<C,I,CONTAINER>::set_coefficient(const I& index, const C value)
   {
-    typename CONTAINER::iterator it(this->lower_bound(index));
-    if (it != CONTAINER::end() &&
-        !CONTAINER::key_comp()(index,it->first)) {
-      it->second = value;
+  // note: the following code, avoiding explicit specializations, will only compile in C++17 and onwards
+    if constexpr (std::is_same_v<std::unordered_map<I,C>, CONTAINER>)
+    {
+      typename CONTAINER::iterator it(this->find(index));
+      if (it != CONTAINER::end())
+        it->second = value;
+      else
+        CONTAINER::insert(it, typename CONTAINER::value_type(index, value));
     }
-    else {
-      CONTAINER::insert(it, typename CONTAINER::value_type(index, value));
-      //CONTAINER::insert(typename CONTAINER::value_type(index, value));
+    else
+    {
+      // generic code for ordered container classes like std::map
+      typename CONTAINER::iterator it(this->lower_bound(index));
+      if (it != CONTAINER::end() &&
+          !CONTAINER::key_comp()(index,it->first)) {
+        it->second = value;
+      }
+      else {
+        CONTAINER::insert(it, typename CONTAINER::value_type(index, value));
+        //CONTAINER::insert(typename CONTAINER::value_type(index, value));
+      }
     }
   }
 
@@ -203,17 +243,35 @@ namespace AMSTeL
   template <class C, class I, class CONTAINER>
   void InfiniteVector<C,I,CONTAINER>::add_coefficient(const I& index, const C increment)
   {
-    // efficient add-or-update, cf. Meyers, Effective STL
-    typename CONTAINER::iterator it(this->lower_bound(index));
-    if (it != CONTAINER::end() &&
-        !CONTAINER::key_comp()(index, it->first))
+  // note: the following code, avoiding explicit specializations, will only compile in C++17 and onwards
+    if constexpr (std::is_same_v<std::unordered_map<I,C>, CONTAINER>)
     {
-      // we already have a nontrivial coefficient
-      if ((it->second += increment) == C(0))
-        CONTAINER::erase(it);
-    } else {
-      // insert the increment as new coefficient
-      CONTAINER::insert(it, typename CONTAINER::value_type(index, increment));
+      typename CONTAINER::iterator it(this->find(index));
+      if (it != CONTAINER::end())
+      {
+        if ((it->second += increment) == C(0))
+          CONTAINER::erase(it);
+        }
+      else {
+        // insert the increment as new coefficient
+        CONTAINER::insert(it, typename CONTAINER::value_type(index, increment));
+      }
+    }
+    else
+    {
+      // generic code for ordered container classes like std::map
+      // efficient add-or-update, cf. Meyers, Effective STL
+      typename CONTAINER::iterator it(this->lower_bound(index));
+      if (it != CONTAINER::end() &&
+        !CONTAINER::key_comp()(index, it->first))
+      {
+        // we already have a nontrivial coefficient
+        if ((it->second += increment) == C(0))
+          CONTAINER::erase(it);
+      } else {
+        // insert the increment as new coefficient
+        CONTAINER::insert(it, typename CONTAINER::value_type(index, increment));
+      }
     }
   }
   
